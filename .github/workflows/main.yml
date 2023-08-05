@@ -1,0 +1,132 @@
+# create positive integers function
+def positive_int(x):
+    while True:
+        try:
+            value = int(input(x))  # read input
+            if value <= 0:  # check if input less or equal 0
+                raise ValueError  # raise error if value is 0 or less
+            return value  # return positive int
+        except ValueError:  # if not positive, display message
+            print("Enter a positive integer.")  # display error message
+
+# create non-negative integers function
+def non_negative_int(x):
+    while True:
+        try:
+            value = int(input(x))  # read input
+            if value < 0:  # check if input if value is negative
+                raise ValueError  # raise error if negative
+            return value  # return 0 or positive int
+        except ValueError:  # if not 0 or positive, display message
+            print("Enter a non-negative integer.")  # display error message
+
+# create function for bus_stop
+def bus_stop():
+    bus_data = {
+        "route_number": 0,
+        "total_stops": 0,
+        "passengers_on_board": 0,
+        "passengers_leaving": [0],  
+        "passengers_waiting": [0],  
+        "happy_customers": 0,
+        "unhappy_customers": 0,
+        "happy_to_unhappy_ratio": 0.0
+    }
+    # create variables for happy
+    total_happy = 0
+    bus_data["happy_customers"] = total_happy
+    total_unhappy = 0
+    bus_data["unhappy_customers"] = total_unhappy
+    max_cap = 35
+
+    route_num = positive_int("Enter the route number: ")  # get positive int for route number
+    bus_data["route_number"] = route_num
+
+    num_of_stops = positive_int("Enter the number of bus stops in this route: ")  # get positive int for number of bus stops
+    bus_data["total_stops"] = num_of_stops
+    # bus stop must be 3 or more
+    while num_of_stops < 3:
+        print("Invalid number of stops. There must be at least three stops on the route.")
+        num_of_stops = positive_int("Enter the number of bus stops in this route: ")
+        
+	#start with getting passenger count, also must be non-negative
+    current_passengers = non_negative_int("How many passengers waiting at bus stop 1? ")
+    if current_passengers < max_cap: # if less than 35:
+        current_passengers = current_passengers + waiting # 0 current passengers + x waiting
+        happy = current_passengers # add happy customers
+        total_happy = total_happy + happy # add into total
+        
+    if current_passengers >= max_cap: # if 35 or more, there will be unhappy customers
+        happy = max_cap # 35 of those customers will be happy
+        total_happy = total_happy + happy # add into total
+        unhappy = current_passengers - 35 # the remainders will be unhappy
+        total_unhappy = total_unhappy + unhappy # add into total
+        current_passengers = max_cap # set current passenger to 35
+        
+    
+    print("current passengers:", current_passengers, "|| current happy passengers:", total_happy, "|| current unhappy individuals:", total_unhappy) # get stats for those on the bus/happy/unhappy
+
+	# start at bus stop 2
+    for i in range(2, num_of_stops + 1):
+		
+		#make leaving restrictions/rules
+        leaving = non_negative_int("How many passengers leaving at bus stop " + str(i) + "? ") # number of passengers leaving must be non-negative
+        if num_of_stops > 1:
+            while leaving > current_passengers: # set error for: if leaving amount is more than current
+                print("Error: the number of passengers leaving exceeds the number of passengers on the bus.")
+                leaving = non_negative_int("How many passengers leaving at bus stop " + str(i) + "? ") 
+        while leaving > 35: # set error for: if leaving exceeds maximum capacity (not possible)
+            print("Error: the number of passengers leaving exceeds the maximum bus capacity of 35")
+            leaving = non_negative_int("How many passengers leaving at bus stop " + str(i) + "? ")
+
+        print("current passengers:", current_passengers - leaving, "|| current happy passengers:", total_happy, "|| current unhappy individuals:", total_unhappy) # get stats for current - leaving, happy, unhappy
+
+		# deduct leaving to current passengers
+        current_passengers = current_passengers - leaving
+        
+		# set conditions for bus
+        waiting = non_negative_int("How many passengers waiting at bus stop " + str(i) + "? ")
+        if current_passengers == 0: # start, or no passengers
+            current_passengers = current_passengers + waiting
+            if waiting < max_cap:
+                happy = waiting
+                total_happy = total_happy + happy
+            if waiting >= max_cap:
+                current_passengers = max_cap
+                happy = max_cap
+                total_happy = total_happy + happy
+                unhappy = waiting - 35
+                total_unhappy = total_unhappy + unhappy
+        elif current_passengers + waiting <= max_cap:		# set rules for < 35, just add happy
+            current_passengers = current_passengers + waiting
+            total_happy = total_happy + current_passengers - waiting
+        elif current_passengers + waiting > max_cap:    # set rules for > 35 and account for those already on the bus
+            total_passengers = current_passengers + waiting
+            unhappy = total_passengers % max_cap
+            total_unhappy = total_unhappy + unhappy
+            if current_passengers < max_cap: # account for happy
+                happy = max_cap - current_passengers
+                total_happy = total_happy + happy 
+            current_passengers = max_cap
+
+        print("current passengers:", current_passengers, "|| current happy passengers:", total_happy, "|| current unhappy individuals:", total_unhappy) # print stats
+
+    # end of bus ride, kick them off
+    while leaving != current_passengers:
+        print("There are", current_passengers, "passengers on board at the end of bus stop #", num_of_stops, ",please kick them off")
+        leaving = non_negative_int("How many passengers leaving at bus stop " + str(i) + "? ")
+	# calculate ratio
+    if total_unhappy > 0:
+        ratio_happy_unhappy = total_happy / total_unhappy
+    else:
+        ratio_happy_unhappy = 0
+    bus_data["happy_customers"] = total_happy
+    bus_data["happy_to_unhappy_ratio"] = ratio_happy_unhappy
+	
+	# print stats
+    print("Route number:", route_num)
+    print("Happy customers:", total_happy)
+    print("Unhappy customers:", total_unhappy)
+    print("Ratio of happy/unhappy customers:", ratio_happy_unhappy)
+
+bus_stop()
